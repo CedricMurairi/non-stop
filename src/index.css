@@ -17,3 +17,13 @@ code {
 .line-through{
   text-decoration: line-through;
 }
+
+h4{
+  margin-left: 10px;
+}
+
+.description{
+  background-color:#EEE6FF;
+  border-radius: 3px;
+  padding: 5px;
+}
