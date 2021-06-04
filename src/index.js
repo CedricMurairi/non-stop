@@ -32,7 +32,8 @@ class Todo extends React.Component{
   complete(e){
     const taskIndex = e.target.dataset.key
     let tasks = JSON.parse(localStorage.getItem('tasks'))
-    tasks[taskIndex].done = true
+    if (tasks[taskIndex].done){tasks[taskIndex].done = false}
+    else{tasks[taskIndex].done = true}
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
   }
@@ -42,6 +43,41 @@ class Todo extends React.Component{
       <div>
         <h1>ToDO App | Hack your Day</h1>
         <hr/>
+        <div className="side-bar left-bar">
+          <form className="label-form mb-4">
+            <input
+              required
+              type="text"
+              className="form-control mb-2"
+              placeholder="Label name"
+              name="label-name"
+            />
+            <input
+              required
+              type="color"
+              className="form-control mb-2"
+              name="label-color"
+            />
+            <button className="btn btn-secondary">Create Label</button>
+          </form>
+          <h3>Labels</h3>
+          <hr/>
+        </div>
+        <div className="side-bar right-bar">
+          <form className="project-form mb-4">
+            <input
+              required
+              type="text"
+              className="form-control mb-2"
+              placeholder="Project name"
+              name="project-name"
+            />
+            <textarea required placeholder="Description here!" className="form-control mb-2" name="project-description"></textarea>
+            <button className="btn btn-secondary">Create Project</button>
+          </form>
+          <h3>Projects</h3>
+          <hr/>
+        </div>
         <div>
           <form className="mb-4" onSubmit={this.createTask}>
             <input
@@ -60,10 +96,10 @@ class Todo extends React.Component{
         <div className="tasks-list">
           {this.state.tasks.map((task, index) => {
             return(
-              <div key={index} className="tasks">
+              <div key={index} className={task.done ? "done tasks" : "tasks"}>
                   <div className="d-flex">
                     <input checked={task.done ? true : false} data-key={index} className="form-check-input" type="checkbox" onChange={this.complete}></input>
-                    <h4 className={task.done ? "line-through" : null}>{task.title}</h4>
+                    <h5 className={task.done ? "line-through" : null}>{task.title}</h5>
                   </div>
                   <p className="description">{task.description}</p>
               </div>
