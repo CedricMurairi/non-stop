@@ -9,19 +9,23 @@ class Todo extends React.Component{
     super(props);
     this.createTask = this.createTask.bind(this)
     this.state = {
-      tasks: JSON.parse(localStorage.getItem('tasks')),
-      labels: JSON.parse(localStorage.getItem('labels'))
+      tasks: JSON.parse(localStorage.getItem('tasks')) || [],
+      labels: JSON.parse(localStorage.getItem('labels')) || []
     }
   }
 
   createTask(e){
     e.preventDefault();
     const data = new FormData(e.target);
-    this.setState({tasks: [...this.state.tasks, {
+    let tasks = JSON.parse(localStorage.getItem('tasks'))
+    tasks = [...tasks, {
       title: data.get('title'),
       description: data.get('description'),
       done: false
-    }]})
+    }]
+
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+    this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
   }
 
   render() {
