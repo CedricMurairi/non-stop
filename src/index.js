@@ -20,12 +20,12 @@ function CreateTaskForm(props){
     <form className="mb-4" onSubmit={props.onSubmit}>
       <input
         required
-        className="form-control mb-2"
+        className="form-control form-control-sm mb-2"
         type="text"
         placeholder="Title"
         name="title"
       />
-      <textarea required placeholder="Description here!" className="form-control mb-2" name="description"></textarea>
+      <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
       <button className="btn btn-secondary btn-sm">Create Task</button>
     </form>
   )
@@ -33,37 +33,42 @@ function CreateTaskForm(props){
 
 function CreateProjectForm(props){
   return (
-    <form className="project-form mb-4">
+    <form className="project-form mb-4" onSubmit={(e) => props.onSubmit(e)}>
       <input
         required
         type="text"
-        className="form-control mb-2"
+        className="form-control form-control-sm mb-2"
         placeholder="Project name"
         name="project-name"
       />
-      <textarea required placeholder="Description here!" className="form-control mb-2" name="project-description"></textarea>
-      <button className="btn btn-secondary btn-sm">Create Project</button>
+      <textarea
+        required
+        placeholder="Description here!"
+        className="form-control form-control-sm mb-2"
+        name="project-description">
+      </textarea>
+      <button className="btn btn-secondary btn-sm">Add Project +</button>
     </form>
   )
 }
 
 function CreateLabelForm(props){
   return (
-    <form className="label-form mb-4">
+    <form className="label-form mb-4" onSubmit={(e) => props.onSubmit(e)}>
       <input
         required
         type="text"
-        className="form-control mb-2"
+        className="form-control form-control-sm mb-2"
         placeholder="Label name"
         name="label-name"
       />
       <input
         required
         type="color"
-        className="form-control form-control-color mb-2"
+        className="form-control form-control-sm form-control-color mb-2"
         name="label-color"
       />
-      <button className="btn btn-secondary btn-sm">Create Label</button>
+      <button className="btn btn-secondary btn-sm">Add Label +</button>
     </form>
   )
 }
@@ -71,11 +76,14 @@ function CreateLabelForm(props){
 class Todo extends React.Component{
   constructor(props){
     super(props);
-    this.createTask = this.createTask.bind(this)
-    this.completetask = this.completetask.bind(this)
+    this.createTask = this.createTask.bind(this);
+    this.completeTask = this.completeTask.bind(this);
+    this.createProject = this.createProject(this);
+    this.createLabel = this.createLabel(this);
     this.state = {
       tasks: JSON.parse(localStorage.getItem('tasks')) || [],
-      labels: JSON.parse(localStorage.getItem('labels')) || []
+      labels: JSON.parse(localStorage.getItem('labels')) || [],
+      projects: []
     }
   }
 
@@ -106,13 +114,21 @@ class Todo extends React.Component{
     e.target.description = ""
   }
 
-  completetask(e){
+  completeTask(e){
     const taskIndex = e.target.dataset.key
     let tasks = JSON.parse(localStorage.getItem('tasks'))
     if (tasks[taskIndex].done){tasks[taskIndex].done = false}
     else{tasks[taskIndex].done = true}
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
+  }
+
+  createLabel(e){
+    console.log(e.target)
+  }
+
+  createProject(e){
+    console.log(e.target)
   }
 
   render() {
@@ -132,26 +148,24 @@ class Todo extends React.Component{
             <hr/>
             <h6>Labels</h6>
             <hr/>
-            <button className="btn btn-secondary btn-sm">Add label +</button>
-            {/* <CreateLabelForm /> */}
+            <CreateLabelForm onSubmit={this.createLabel}/>
           </div>
           <div className="main-form">
             <CreateTaskForm onSubmit={this.createTask}/>
+            <div>
+              <div className="tasks-list">
+                {this.state.tasks.map((task, index) => {
+                  return(
+                    <Task task={task} key={index} index={index} onChange={this.completeTask}/>
+                  )
+                })}
+              </div>
+            </div>
           </div>
           <div className="side-bar right-bar">
             <h6>Projects</h6>
             <hr/>
-            <button className="btn btn-secondary btn-sm">Add project +</button>
-            {/* <CreateProjectForm /> */}
-          </div>
-        </div>
-        <div className="mgin-40">
-          <div className="tasks-list">
-            {this.state.tasks.map((task, index) => {
-              return(
-                <Task task={task} key={index} index={index} onChange={this.completetask}/>
-              )
-            })}
+            <CreateProjectForm onSubmit={this.createProject}/>
           </div>
         </div>
       </div>
