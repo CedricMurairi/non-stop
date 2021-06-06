@@ -1,14 +1,78 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import App from './App';
 import reportWebVitals from './reportWebVitals';
+
+function Task(props){
+  return (
+    <div className={props.task.done ? "done tasks" : "tasks"}>
+        <div className="d-flex">
+          <input checked={props.task.done ? true : false} data-key={props.index} className="form-check-input" type="checkbox" onChange={props.onChange}></input>
+          <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
+        </div>
+        <p className="description">{props.task.description}</p>
+    </div>
+  )
+}
+
+function CreateTaskForm(props){
+  return (
+    <form className="mb-4" onSubmit={props.onSubmit}>
+      <input
+        required
+        className="form-control mb-2"
+        type="text"
+        placeholder="Title"
+        name="title"
+      />
+      <textarea required placeholder="Description here!" className="form-control mb-2" name="description"></textarea>
+      <button className="btn btn-secondary btn-sm">Create Task</button>
+    </form>
+  )
+}
+
+function CreateProjectForm(props){
+  return (
+    <form className="project-form mb-4">
+      <input
+        required
+        type="text"
+        className="form-control mb-2"
+        placeholder="Project name"
+        name="project-name"
+      />
+      <textarea required placeholder="Description here!" className="form-control mb-2" name="project-description"></textarea>
+      <button className="btn btn-secondary btn-sm">Create Project</button>
+    </form>
+  )
+}
+
+function CreateLabelForm(props){
+  return (
+    <form className="label-form mb-4">
+      <input
+        required
+        type="text"
+        className="form-control mb-2"
+        placeholder="Label name"
+        name="label-name"
+      />
+      <input
+        required
+        type="color"
+        className="form-control form-control-color mb-2"
+        name="label-color"
+      />
+      <button className="btn btn-secondary btn-sm">Create Label</button>
+    </form>
+  )
+}
 
 class Todo extends React.Component{
   constructor(props){
     super(props);
     this.createTask = this.createTask.bind(this)
-    this.complete = this.complete.bind(this)
+    this.completetask = this.completetask.bind(this)
     this.state = {
       tasks: JSON.parse(localStorage.getItem('tasks')) || [],
       labels: JSON.parse(localStorage.getItem('labels')) || []
@@ -42,7 +106,7 @@ class Todo extends React.Component{
     e.target.description = ""
   }
 
-  complete(e){
+  completetask(e){
     const taskIndex = e.target.dataset.key
     let tasks = JSON.parse(localStorage.getItem('tasks'))
     if (tasks[taskIndex].done){tasks[taskIndex].done = false}
@@ -60,67 +124,32 @@ class Todo extends React.Component{
         </div>
         <div className="span-across">
           <div className="side-bar left-bar">
-            <form className="label-form mb-4">
-              <input
-                required
-                type="text"
-                className="form-control mb-2"
-                placeholder="Label name"
-                name="label-name"
-              />
-              <input
-                required
-                type="color"
-                className="form-control mb-2"
-                name="label-color"
-              />
-              <button className="btn btn-secondary">Create Label</button>
-            </form>
-            {/* <h3>Labels</h3> */}
-            {/* <hr/> */}
+            <div className="menu text-muted">
+              <button className="btn btn-sm text-muted">General <span>{this.state.tasks.filter(task => !task.done).length}</span></button>
+              <button className="btn btn-sm text-muted">Today <span></span></button>
+              <button className="btn btn-sm text-muted">Upcoming</button>
+            </div>
+            <hr/>
+            <h6>Labels</h6>
+            <hr/>
+            <button className="btn btn-secondary btn-sm">Add label +</button>
+            {/* <CreateLabelForm /> */}
           </div>
           <div className="main-form">
-            <form className="mb-4" onSubmit={this.createTask}>
-              <input
-                required
-                className="form-control mb-2"
-                type="text"
-                placeholder="Title"
-                name="title"
-              />
-              <textarea required placeholder="Description here!" className="form-control mb-2" name="description"></textarea>
-              <button className="btn btn-secondary">Create Task</button>
-            </form>
+            <CreateTaskForm onSubmit={this.createTask}/>
           </div>
           <div className="side-bar right-bar">
-            <form className="project-form mb-4">
-              <input
-                required
-                type="text"
-                className="form-control mb-2"
-                placeholder="Project name"
-                name="project-name"
-              />
-              <textarea required placeholder="Description here!" className="form-control mb-2" name="project-description"></textarea>
-              <button className="btn btn-secondary">Create Project</button>
-            </form>
-            {/* <h3>Projects</h3> */}
-            {/* <hr/> */}
+            <h6>Projects</h6>
+            <hr/>
+            <button className="btn btn-secondary btn-sm">Add project +</button>
+            {/* <CreateProjectForm /> */}
           </div>
         </div>
         <div className="mgin-40">
-          {/* <h3>Tasks</h3> */}
-          {/* <hr/> */}
           <div className="tasks-list">
             {this.state.tasks.map((task, index) => {
               return(
-                <div key={index} className={task.done ? "done tasks" : "tasks"}>
-                    <div className="d-flex">
-                      <input checked={task.done ? true : false} data-key={index} className="form-check-input" type="checkbox" onChange={this.complete}></input>
-                      <h5 className={task.done ? "line-through" : null}>{task.title}</h5>
-                    </div>
-                    <p className="description">{task.description}</p>
-                </div>
+                <Task task={task} key={index} index={index} onChange={this.completetask}/>
               )
             })}
           </div>
