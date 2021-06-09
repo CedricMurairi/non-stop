@@ -6,11 +6,29 @@ import reportWebVitals from './reportWebVitals';
 function Task(props){
   return (
     <div className={props.task.done ? "done tasks" : "tasks"}>
-        <div className="d-flex">
+        <div className="d-flex tag-script">
           <input checked={props.task.done ? true : false} data-key={props.index} className="form-check-input" type="checkbox" onChange={props.onChange}></input>
           <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
         </div>
         <p className="description">{props.task.description}</p>
+    </div>
+  )
+}
+
+function Project(props){
+  return (
+    <div className={props.project.done ? "done project" : "project"}>
+        <div className="d-flex tag-script project-tag">
+          <h6>{props.project.name}</h6>
+          <div className="progress mb-1">
+            <div
+              className="progress-bar"
+              role="progressbar"
+              style={{width: props.tasks.filter(task => task.done).count / props.tasks.count + '%'}}
+              aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+        <p className="description">{props.project.description}</p>
     </div>
   )
 }
@@ -33,19 +51,19 @@ function CreateTaskForm(props){
 
 function CreateProjectForm(props){
   return (
-    <form className="project-form mb-4" onSubmit={(e) => props.onSubmit(e)}>
+    <form className="project-form mb-4" onSubmit={props.onSubmit}>
       <input
         required
         type="text"
         className="form-control form-control-sm mb-2"
         placeholder="Project name"
-        name="project-name"
+        name="project_name"
       />
       <textarea
         required
         placeholder="Description here!"
         className="form-control form-control-sm mb-2"
-        name="project-description">
+        name="project_description">
       </textarea>
       <button className="btn btn-secondary btn-sm">Add Project +</button>
     </form>
@@ -78,12 +96,12 @@ class Todo extends React.Component{
     super(props);
     this.createTask = this.createTask.bind(this);
     this.completeTask = this.completeTask.bind(this);
-    this.createProject = this.createProject(this);
-    this.createLabel = this.createLabel(this);
+    this.createProject = this.createProject.bind(this);
+    this.createLabel = this.createLabel.bind(this);
     this.state = {
       tasks: JSON.parse(localStorage.getItem('tasks')) || [],
       labels: JSON.parse(localStorage.getItem('labels')) || [],
-      projects: []
+      projects: JSON.parse(localStorage.getItem('projects')) || []
     }
   }
 
@@ -110,8 +128,8 @@ class Todo extends React.Component{
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
 
-    e.target.title = ""
-    e.target.description = ""
+    e.target.title.value = ""
+    e.target.description.value = ""
   }
 
   completeTask(e){
@@ -124,11 +142,35 @@ class Todo extends React.Component{
   }
 
   createLabel(e){
-    console.log(e.target)
+    e.preventDefault()
+    const data = new FormData(e.target)
+    console.log(data)
   }
 
   createProject(e){
-    console.log(e.target)
+    e.preventDefault()
+    let projects = JSON.parse(localStorage.getItem('projects'))
+    if (projects){
+      projects = [...projects, {
+        name: e.target.project_name.value,
+        description: e.target.project_description.value,
+        color: "black",
+        done: false
+      }]
+    }else{
+      projects = [{
+        name: e.target.project_name.value,
+        description: e.target.project_description.value,
+        color: "black",
+        done: false
+      }]
+    }
+
+    localStorage.setItem('projects', JSON.stringify(projects))
+    this.setState({projects: JSON.parse(localStorage.getItem('projects'))})
+
+    e.target.project_name.value = "" 
+    e.target.project_description.value = "" 
   }
 
   render() {
@@ -166,6 +208,17 @@ class Todo extends React.Component{
             <h6>Projects</h6>
             <hr/>
             <CreateProjectForm onSubmit={this.createProject}/>
+            <div className="projects-list">
+              {this.state.projects.map((project, index) => {
+                return (
+                  <Project
+                    project={project}
+                    key={index} 
+                    tasks={this.state.tasks.filter(task => task.project === project.name)}
+                  />
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
