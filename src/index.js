@@ -33,6 +33,14 @@ function Project(props){
   )
 }
 
+function Label(props){
+  return (
+    <div className="label" style={{background: props.label.color}}>
+        <p className="label_name">{props.label.name}</p>
+    </div>
+  )
+}
+
 function CreateTaskForm(props){
   return (
     <form className="mb-4" onSubmit={props.onSubmit}>
@@ -78,13 +86,13 @@ function CreateLabelForm(props){
         type="text"
         className="form-control form-control-sm mb-2"
         placeholder="Label name"
-        name="label-name"
+        name="label_name"
       />
       <input
         required
         type="color"
         className="form-control form-control-sm form-control-color mb-2"
-        name="label-color"
+        name="label_color"
       />
       <button className="btn btn-secondary btn-sm">Add Label +</button>
     </form>
@@ -143,8 +151,24 @@ class Todo extends React.Component{
 
   createLabel(e){
     e.preventDefault()
-    const data = new FormData(e.target)
-    console.log(data)
+    let labels = JSON.parse(localStorage.getItem('labels'))
+    if (labels){
+      labels = [...labels, {
+        name: e.target.label_name.value,
+        color: e.target.label_color.value
+      }]
+    }else{
+      labels = [{
+        name: e.target.label_name.value,
+        color: e.target.label_color.value
+      }]
+    }
+
+    localStorage.setItem('labels', JSON.stringify(labels))
+    this.setState({labels: JSON.parse(localStorage.getItem('labels'))})
+
+    e.target.label_name.value = "" 
+    e.target.label_color.value = ""
   }
 
   createProject(e){
@@ -191,6 +215,16 @@ class Todo extends React.Component{
             <h6>Labels</h6>
             <hr/>
             <CreateLabelForm onSubmit={this.createLabel}/>
+            <div className="label-list">
+              {this.state.labels.map((label, index) => {
+                return (
+                  <Label
+                    label={label}
+                    key={index}
+                  />
+                )
+              })}
+            </div>
           </div>
           <div className="main-form">
             <CreateTaskForm onSubmit={this.createTask}/>
