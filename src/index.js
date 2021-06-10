@@ -1,19 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import './custom'
 import reportWebVitals from './reportWebVitals';
 
 function Task(props){
   return (
-    <div className={props.task.done ? "done tasks" : "tasks"}>
-        <div className="d-flex tag-script">
+    <div className={props.task.done ? "done task" : "task"} data-key={props.index}>
+        <div className="d-flex tag-script task-tag" data-key={props.index}>
           <input checked={props.task.done ? true : false} data-key={props.index} className="form-check-input" type="checkbox" onChange={props.onChange}></input>
-          <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
+          <div className="task-tile">
+            <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
+          </div>
         </div>
-        <p className="description">{props.task.description}</p>
+        <i className="fas fa-ellipsis-v hidden"></i>
+        <p className="description hidden">{props.task.description}</p>
     </div>
   )
 }
+
+
 
 function Project(props){
   return (
@@ -28,7 +34,7 @@ function Project(props){
               aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
         </div>
-        <p className="description">{props.project.description}</p>
+        <p className="description hidden">{props.project.description}</p>
     </div>
   )
 }
@@ -236,6 +242,7 @@ class Todo extends React.Component{
                   )
                 })}
               </div>
+              <button className="add-task-btn btn btn-secondary">+</button>
             </div>
           </div>
           <div className="side-bar right-bar">
