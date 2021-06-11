@@ -22,10 +22,6 @@ code {
   margin-left: 10px;
 }
 
-/* .tasks-list{
-  padding-bottom: 30px;
-} */
-
 .description{
   background-color:#EEE6FF;
   border-radius: 3px;
@@ -60,21 +56,25 @@ code {
 
 .main-form{
   width: 80%;
-  height: 85vh;
-  overflow: scroll;
+  min-height: 85vh;
   margin: auto;
   margin-top: 0;
-  margin-bottom: 0;
-  /* position: relative; */
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.tasks-list{
+  max-height: 85vh;
+  overflow: scroll;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-.main-form::-webkit-scrollbar {
+.main-form::-webkit-scrollbar, .tasks-list::-webkit-scrollbar, body::-webkit-scrollbar {
   display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
-.main-form {
+.main-form, .tasks-list, body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
@@ -137,7 +137,7 @@ input[type=number]:focus,
 .label{
   margin: 1px;
   border-radius: 3px;
-  width: fit-content;
+  max-width: fit-content;
   height: fit-content;
   padding: 1px 4px;
   border: 1px solid none;
@@ -148,7 +148,6 @@ input[type=number]:focus,
 .label p{
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 .label-list{
@@ -175,7 +174,7 @@ i{
 }
 
 .add-task-btn{
-  position: fixed;
+  position: absolute;
   bottom: 20px;
   right: 20px;
   font-weight: bolder;
@@ -187,4 +186,8 @@ i{
 
 .add-task-btn:focus{
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5) !important;
+}
+
+form{
+  animation: popin 0.3s normal;
 }
