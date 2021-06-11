@@ -48,19 +48,23 @@ function Label(props){
 }
 
 function CreateTaskForm(props){
-  return (
-    <form className="mb-4" onSubmit={props.onSubmit}>
-      <input
-        required
-        className="form-control form-control-sm mb-2"
-        type="text"
-        placeholder="Title"
-        name="title"
-      />
-      <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
-      <button className="btn btn-secondary btn-sm">Create Task</button>
-    </form>
-  )
+  if (props.showTaskForm) {
+    return (
+      <form className="mb-4" onSubmit={props.onSubmit}>
+        <input
+          required
+          className="form-control form-control-sm mb-2"
+          type="text"
+          placeholder="Title"
+          name="title"
+        />
+        <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
+        <button className="btn btn-secondary btn-sm">Create Task</button>
+      </form>
+    )
+  }else{
+    return ""
+  }
 }
 
 function CreateProjectForm(props){
@@ -115,7 +119,8 @@ class Todo extends React.Component{
     this.state = {
       tasks: JSON.parse(localStorage.getItem('tasks')) || [],
       labels: JSON.parse(localStorage.getItem('labels')) || [],
-      projects: JSON.parse(localStorage.getItem('projects')) || []
+      projects: JSON.parse(localStorage.getItem('projects')) || [],
+      showTaskForm: false
     }
   }
 
@@ -220,7 +225,7 @@ class Todo extends React.Component{
             <hr/>
             <h6>Labels</h6>
             <hr/>
-            <CreateLabelForm onSubmit={this.createLabel}/>
+            <CreateLabelForm onSubmit={this.createLabel} showTaskForm={this.state.showTaskForm}/>
             <div className="label-list">
               {this.state.labels.map((label, index) => {
                 return (
@@ -233,17 +238,24 @@ class Todo extends React.Component{
             </div>
           </div>
           <div className="main-form">
-            <CreateTaskForm onSubmit={this.createTask}/>
-            <div>
-              <div className="tasks-list">
-                {this.state.tasks.map((task, index) => {
-                  return(
-                    <Task task={task} key={index} index={index} onChange={this.completeTask}/>
-                  )
-                })}
-              </div>
-              <button className="add-task-btn btn btn-secondary">+</button>
+            <CreateTaskForm onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
+            <div className="tasks-list">
+              {this.state.tasks.map((task, index) => {
+                return(
+                  <Task task={task} key={index} index={index} onChange={this.completeTask}/>
+                )
+              })}
             </div>
+            <button
+              type="button"
+              className="add-task-btn btn btn-secondary"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Create Task"
+              onClick={() => this.setState({showTaskForm: !this.state.showTaskForm})}
+            >
+              +
+            </button>
           </div>
           <div className="side-bar right-bar">
             <h6>Projects</h6>
