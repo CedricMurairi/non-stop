@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import './custom'
 import reportWebVitals from './reportWebVitals';
+import { fireEvent } from '@testing-library/dom';
 
 function Task(props){
   return (
@@ -13,7 +14,7 @@ function Task(props){
             <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
           </div>
         </div>
-        <i className="fas fa-ellipsis-v hidden"></i>
+        <i className="options fas fa-ellipsis-v hidden"></i>
         <p className="description hidden">{props.task.description}</p>
     </div>
   )
@@ -41,8 +42,12 @@ function Project(props){
 
 function Label(props){
   return (
-    <div className="label" style={{background: props.label.color}}>
+    <div data-id={props.id} className="label" style={{background: props.label.color}}>
         <p className="label_name">{props.label.name}</p>
+        <svg onClick={props.onClick} className="delete" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+        width="10" height="10"
+        viewBox="0 0 172 172"
+        style={{fill:"#000000"}}><g fill="none" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" strokeDasharray="" strokeDashoffset="0" fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none"><path d="M0,172v-172h172v172z" fill="none"></path><g fill="#ffffff"><path d="M71.66667,14.33333l-7.16667,7.16667h-35.83333v14.33333h21.5h71.66667h21.5v-14.33333h-35.83333l-7.16667,-7.16667zM35.83333,50.16667v93.16667c0,7.88333 6.45,14.33333 14.33333,14.33333h71.66667c7.88333,0 14.33333,-6.45 14.33333,-14.33333v-93.16667z"></path></g></g></svg>
     </div>
   )
 }
@@ -50,7 +55,7 @@ function Label(props){
 function CreateTaskForm(props){
   if (props.showTaskForm) {
     return (
-      <form className="mb-4" onSubmit={props.onSubmit}>
+      <form className="create-task mb-4" onSubmit={props.onSubmit}>
         <input
           required
           className="form-control form-control-sm mb-2"
@@ -60,6 +65,8 @@ function CreateTaskForm(props){
         />
         <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
         <button className="btn btn-secondary btn-sm">Create Task</button>
+        <button className="btn btn-success btn-sm" onClick={() => console.log("Clicked")}>Edit</button>
+        <button className="btn btn-outline-secondary btn-sm" onClick={(e) => e.target.parentElement.reset()}>Cancel</button>
       </form>
     )
   }else{
@@ -116,11 +123,12 @@ class Todo extends React.Component{
     this.completeTask = this.completeTask.bind(this);
     this.createProject = this.createProject.bind(this);
     this.createLabel = this.createLabel.bind(this);
+    this.deleteLabel = this.deleteLabel.bind(this);
     this.state = {
       tasks: JSON.parse(localStorage.getItem('tasks')) || [],
       labels: JSON.parse(localStorage.getItem('labels')) || [],
       projects: JSON.parse(localStorage.getItem('projects')) || [],
-      showTaskForm: false
+      showTaskForm: true
     }
   }
 
@@ -182,6 +190,19 @@ class Todo extends React.Component{
     e.target.label_color.value = ""
   }
 
+  deleteLabel(e){
+    e.preventDefault();
+    const id = e.target.parentElement.dataset.id
+    if (id){
+      let labels = JSON.parse(localStorage.getItem('labels'))
+      labels.splice(id, 1)
+      localStorage.setItem("labels", JSON.stringify(labels))
+      this.setState({labels: labels})
+    }else{
+      console.log("Could not delete label")
+    }
+  }
+
   createProject(e){
     e.preventDefault()
     let projects = JSON.parse(localStorage.getItem('projects'))
@@ -232,6 +253,8 @@ class Todo extends React.Component{
                   <Label
                     label={label}
                     key={index}
+                    id={index}
+                    onClick={this.deleteLabel}
                   />
                 )
               })}
