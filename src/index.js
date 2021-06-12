@@ -68,7 +68,7 @@ function CreateTaskForm(props){
         />
         <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
         <button className="btn btn-secondary btn-sm">Create Task</button>
-        <button className="hidden btn btn-success btn-sm" onClick={props.edit}>Edit</button>
+        <button className="edit hidden btn btn-success btn-sm" onClick={props.edit}>Edit</button>
         <button className="cancel hidden btn btn-outline-secondary btn-sm">Cancel</button>
       </form>
     )
@@ -314,7 +314,7 @@ class Todo extends React.Component{
               data-bs-toggle="tooltip"
               data-bs-placement="top"
               title="Create Task"
-              onClick={() => this.setState({showTaskForm: !this.state.showTaskForm})}
+              // onClick={() => this.setState({showTaskForm: !this.state.showTaskForm})}
             >
               +
             </button>

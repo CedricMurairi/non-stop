@@ -25,6 +25,14 @@ window.onload = () => {
         editForm[0].childNodes[1].value = target.childNodes[3].innerText
     }))
 
+    let edit = document.querySelector(".edit")
+    edit.addEventListener('click', (e) => {
+        // e.target.parentElement.reset()
+        editForm[0].childNodes[2].classList.remove("hidden")
+        editForm[0].childNodes[3].classList.add("hidden")
+        editForm[0].childNodes[4].classList.add("hidden")
+    })
+
     let cancel = document.querySelector(".cancel")
     cancel.addEventListener('click', (e) => {
         e.target.parentElement.reset()
