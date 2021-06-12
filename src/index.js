@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import './custom'
 import reportWebVitals from './reportWebVitals';
-import { fireEvent } from '@testing-library/dom';
 
 function Task(props){
   return (
@@ -14,7 +13,16 @@ function Task(props){
             <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
           </div>
         </div>
-        <i className="options fas fa-ellipsis-v hidden"></i>
+        {/* <i  className="options fas fa-ellipsis-v hidden"></i> */}
+        {/* <svg data-id={props.index} onClick={props.onClick} className="options deleteTask hidden" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+        width="10" height="10"
+        viewBox="0 0 172 172"
+        style={{fill:"#000000"}}><g fill="none" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" strokeDasharray="" strokeDashoffset="0" fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none"><path d="M0,172v-172h172v172z" fill="none"></path><g fill="#ffffff"><path d="M71.66667,14.33333l-7.16667,7.16667h-35.83333v14.33333h21.5h71.66667h21.5v-14.33333h-35.83333l-7.16667,-7.16667zM35.83333,50.16667v93.16667c0,7.88333 6.45,14.33333 14.33333,14.33333h71.66667c7.88333,0 14.33333,-6.45 14.33333,-14.33333v-93.16667z"></path></g></g></svg> */}
+        <img width="16px" data-id={props.index} className="options editTask hidden" src="https://img.icons8.com/material/24/000000/edit--v1.png" alt=""/>
+        <svg data-id={props.index} onClick={props.deleteTask} className="options deleteTask hidden" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+        width="15" height="15"
+        viewBox="0 0 172 172" 
+        style={{fill:"#000000"}}><g fill="none" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" strokeDasharray="" strokeDashoffset="0" fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none"><path d="M0,172v-172h172v172z" fill="none"></path><g fill="#000000"><path d="M71.66667,14.33333l-7.16667,7.16667h-35.83333v14.33333h21.5h71.66667h21.5v-14.33333h-35.83333l-7.16667,-7.16667zM35.83333,50.16667v93.16667c0,7.88333 6.45,14.33333 14.33333,14.33333h71.66667c7.88333,0 14.33333,-6.45 14.33333,-14.33333v-93.16667z"></path></g></g></svg>
         <p className="description hidden">{props.task.description}</p>
     </div>
   )
@@ -65,8 +73,8 @@ function CreateTaskForm(props){
         />
         <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
         <button className="btn btn-secondary btn-sm">Create Task</button>
-        <button className="btn btn-success btn-sm" onClick={() => console.log("Clicked")}>Edit</button>
-        <button className="btn btn-outline-secondary btn-sm" onClick={(e) => e.target.parentElement.reset()}>Cancel</button>
+        <button className="hidden btn btn-success btn-sm" onClick={props.edit}>Edit</button>
+        <button className="cancel hidden btn btn-outline-secondary btn-sm">Cancel</button>
       </form>
     )
   }else{
@@ -121,6 +129,7 @@ class Todo extends React.Component{
     super(props);
     this.createTask = this.createTask.bind(this);
     this.completeTask = this.completeTask.bind(this);
+    this.editTask = this.editTask.bind(this);
     this.createProject = this.createProject.bind(this);
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
@@ -166,6 +175,27 @@ class Todo extends React.Component{
     else{tasks[taskIndex].done = true}
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
+  }
+
+  editTask(e){
+    e.preventDefault()
+    let target = e.target.parentElement
+    const title = target[0].value
+    const description = target[1].value
+
+    if (title === "" || description === ""){
+      return
+    }else{
+      const id = target.dataset.id
+
+      let tasks = JSON.parse(localStorage.getItem("tasks"))
+      tasks[id]['title'] = title
+      tasks[id]['description'] = description
+      localStorage.setItem('tasks', JSON.stringify(tasks))
+      this.setState({tasks: tasks})
+
+      target.reset()
+    }
   }
 
   createLabel(e){
@@ -261,7 +291,7 @@ class Todo extends React.Component{
             </div>
           </div>
           <div className="main-form">
-            <CreateTaskForm onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
+            <CreateTaskForm edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
               {this.state.tasks.map((task, index) => {
                 return(
