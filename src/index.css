@@ -169,12 +169,22 @@ input[type=number]:focus,
   width: 70%;
 }
 
-i{
-  color: gray;
-  width: 2px;
+.deleteTask{
+  opacity: 0.6;
   position: absolute;
   right: 5px;
-  top: 0;
+  top: 7px;
+}
+
+.editTask{
+  opacity: 0.6;
+  position: absolute;
+  right: 30px;
+  top: 7px;
+}
+
+.deleteTask:hover, .editTask:hover{
+  opacity: 1;
 }
 
 .add-task-btn{
