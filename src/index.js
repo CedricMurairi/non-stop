@@ -13,11 +13,6 @@ function Task(props){
             <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
           </div>
         </div>
-        {/* <i  className="options fas fa-ellipsis-v hidden"></i> */}
-        {/* <svg data-id={props.index} onClick={props.onClick} className="options deleteTask hidden" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-        width="10" height="10"
-        viewBox="0 0 172 172"
-        style={{fill:"#000000"}}><g fill="none" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" strokeDasharray="" strokeDashoffset="0" fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none"><path d="M0,172v-172h172v172z" fill="none"></path><g fill="#ffffff"><path d="M71.66667,14.33333l-7.16667,7.16667h-35.83333v14.33333h21.5h71.66667h21.5v-14.33333h-35.83333l-7.16667,-7.16667zM35.83333,50.16667v93.16667c0,7.88333 6.45,14.33333 14.33333,14.33333h71.66667c7.88333,0 14.33333,-6.45 14.33333,-14.33333v-93.16667z"></path></g></g></svg> */}
         <img width="16px" data-id={props.index} className="options editTask hidden" src="https://img.icons8.com/material/24/000000/edit--v1.png" alt=""/>
         <svg data-id={props.index} onClick={props.deleteTask} className="options deleteTask hidden" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
         width="15" height="15"
@@ -130,6 +125,7 @@ class Todo extends React.Component{
     this.createTask = this.createTask.bind(this);
     this.completeTask = this.completeTask.bind(this);
     this.editTask = this.editTask.bind(this);
+    this.deleteTask = this.deleteTask.bind(this);
     this.createProject = this.createProject.bind(this);
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
@@ -195,6 +191,19 @@ class Todo extends React.Component{
       this.setState({tasks: tasks})
 
       target.reset()
+    }
+  }
+  
+  deleteTask(e){
+    e.preventDefault();
+    const id = e.target.dataset.id
+    if (id){
+      let tasks = JSON.parse(localStorage.getItem('tasks'))
+      tasks.splice(id, 1)
+      localStorage.setItem("tasks", JSON.stringify(tasks))
+      this.setState({tasks: tasks})
+    }else{
+      console.log("Could not delete task")
     }
   }
 
@@ -295,7 +304,7 @@ class Todo extends React.Component{
             <div className="tasks-list">
               {this.state.tasks.map((task, index) => {
                 return(
-                  <Task task={task} key={index} index={index} onChange={this.completeTask}/>
+                  <Task deleteTask={this.deleteTask} task={task} key={index} index={index} onChange={this.completeTask}/>
                 )
               })}
             </div>
