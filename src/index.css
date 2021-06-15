@@ -70,12 +70,12 @@ code {
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-.main-form::-webkit-scrollbar, .tasks-list::-webkit-scrollbar, body::-webkit-scrollbar {
+.main-form::-webkit-scrollbar, .tasks-list::-webkit-scrollbar, body::-webkit-scrollbar, .task-label::-webkit-scrollbar {
   display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
-.main-form, .tasks-list, body {
+.main-form, .tasks-list, body, .task-label {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
@@ -235,9 +235,12 @@ form{
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  max-width: 100%;
+  overflow: scroll;
 }
 
 .task-label .label{
   font-size: 6px;
+  min-width: fit-content;
   margin-bottom: 5px;
 }
