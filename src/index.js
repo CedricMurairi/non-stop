@@ -11,6 +11,13 @@ function Task(props){
           <input checked={props.task.done ? true : false} data-key={props.index} className="form-check-input" type="checkbox" onChange={props.onChange}></input>
           <div className="task-tile">
             <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
+            <div data-id={props.index} className="task-label">
+              {props.task.labels.map((label, index) => {
+                return(
+                  <Label onClick={props.removeTaskLabel} key={index} id={label} label={props.labels[label]}/>
+                )
+              })}
+            </div>
           </div>
         </div>
         <img width="16px" data-id={props.index} className="options editTask hidden" src="https://img.icons8.com/material/24/000000/edit--v1.png" alt=""/>
@@ -67,6 +74,19 @@ function CreateTaskForm(props){
           name="title"
         />
         <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
+        <div className="label-project hidden input-group mb-2">
+          <select onChange={props.addLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
+            <option defaultValue>Add Label</option>
+            {props.labels.map((label, index) => {
+              return(
+                <option value={index} className="form-control form-control-sm" key={index}>{label.name}</option>
+              )
+            })}
+          </select>
+          <select className="move-to-project form-select form-select-sm" aria-label=".form-select-sm example">
+            <option defaultValue>Move to Project</option>
+          </select>
+        </div>
         <button className="btn btn-secondary btn-sm">Create Task</button>
         <button className="edit hidden btn btn-success btn-sm" onClick={props.edit}>Edit</button>
         <button className="cancel hidden btn btn-outline-secondary btn-sm">Cancel</button>
@@ -126,6 +146,8 @@ class Todo extends React.Component{
     this.completeTask = this.completeTask.bind(this);
     this.editTask = this.editTask.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
+    this.addTaskLabel = this.addTaskLabel.bind(this);
+    this.removeTaskLabel = this.removeTaskLabel.bind(this);
     this.createProject = this.createProject.bind(this);
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
@@ -145,6 +167,8 @@ class Todo extends React.Component{
       tasks = [...tasks, {
         title: data.get('title'),
         description: data.get('description'),
+        labels: [],
+        project: null,
         done: false
       }]
     }else{
@@ -152,6 +176,8 @@ class Todo extends React.Component{
         {
           title: data.get('title'),
           description: data.get('description'),
+          labels: [],
+          project: null,
           done: false
         }
       ]
@@ -171,6 +197,29 @@ class Todo extends React.Component{
     else{tasks[taskIndex].done = true}
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
+  }
+
+  addTaskLabel(e){
+    e.preventDefault()
+    let target = e.target.parentElement.parentElement
+    let task_id = target.dataset.id
+    let label_id = e.target.value
+    let tasks = JSON.parse(localStorage.getItem('tasks'))
+    if (tasks[task_id].labels){
+      tasks[task_id].labels = [...tasks[task_id].labels, label_id]
+    }else{
+      tasks[task_id].labels = [label_id]
+    }
+
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+    this.setState({tasks: tasks})
+  }
+
+  removeTaskLabel(e){
+    e.preventDefault()
+    let label_id = e.target.parentElement.dataset.id
+    let task_id = e.target.parentElement.parentElement.dataset.id
+    console.log(label_id, task_id)
   }
 
   editTask(e){
@@ -300,11 +349,11 @@ class Todo extends React.Component{
             </div>
           </div>
           <div className="main-form">
-            <CreateTaskForm edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
+            <CreateTaskForm addLabel={this.addTaskLabel} labels={this.state.labels} projects={this.state.projects} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
               {this.state.tasks.map((task, index) => {
                 return(
-                  <Task deleteTask={this.deleteTask} task={task} key={index} index={index} onChange={this.completeTask}/>
+                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={task} key={index} index={index} onChange={this.completeTask}/>
                 )
               })}
             </div>
