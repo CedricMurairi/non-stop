@@ -30,8 +30,6 @@ function Task(props){
   )
 }
 
-
-
 function Project(props){
   return (
     <div className={props.project.done ? "done project" : "project"}>
@@ -45,6 +43,8 @@ function Project(props){
               aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
         </div>
+        <img width="16px" data-id={props.index} className="options editProject hidden" src="https://img.icons8.com/material/24/000000/edit--v1.png" alt=""/>
+        <img width="16px" data-id={props.index} className="options deleteProject hidden" src="https://img.icons8.com/material/24/000000/delete--v1.png" alt=""/>
         <p className="description hidden">{props.project.description}</p>
     </div>
   )
@@ -91,6 +91,7 @@ function CreateTaskForm(props){
               )
             })}
           </select>
+          <input className="form-control form-control-sm" type="date"></input>
         </div>
         <button className="btn btn-secondary btn-sm">Create Task</button>
         <button className="edit hidden btn btn-success btn-sm" onClick={props.edit}>Edit</button>
@@ -118,7 +119,20 @@ function CreateProjectForm(props){
         className="form-control form-control-sm mb-2"
         name="project_description">
       </textarea>
+      <div className="label-project hidden input-group mb-2">
+        <select onChange={props.addLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
+          <option defaultValue disabled>Add Label</option>
+          {props.labels.map((label, index) => {
+            return(
+              <option value={index} className="form-control form-control-sm" key={index}>{label.name}</option>
+            )
+          })}
+        </select>
+        <input className="form-control form-control-sm" type="date"></input>
+      </div>
       <button className="btn btn-secondary btn-sm">Add Project +</button>
+      <button className="editProjectActive hidden btn btn-success btn-sm" onClick={props.edit}>Edit</button>
+      <button className="cancel-project-edit hidden btn btn-outline-secondary btn-sm">Cancel</button>
     </form>
   )
 }
@@ -155,6 +169,7 @@ class Todo extends React.Component{
     this.removeTaskLabel = this.removeTaskLabel.bind(this);
     this.moveTaskToProject = this.moveTaskToProject.bind(this)
     this.createProject = this.createProject.bind(this);
+    this.editProject = this.editProject.bind(this);
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
     this.state = {
@@ -256,6 +271,7 @@ class Todo extends React.Component{
     const description = target[1].value
 
     if (title === "" || description === ""){
+      target.reset()
       return
     }else{
       const id = target.dataset.id
@@ -344,6 +360,28 @@ class Todo extends React.Component{
     e.target.project_description.value = "" 
   }
 
+  editProject(e){
+    e.preventDefault()
+    let target = e.target.parentElement
+    let name = target[0].value
+    let description = target[1].value
+    
+    if (name === "" || description === ""){
+      target.reset()
+      return
+    }else{
+      const id = target.dataset.id
+
+      let projects = JSON.parse(localStorage.getItem("projects"))
+      projects[id]['name'] = name
+      projects[id]['description'] = description
+      localStorage.setItem('projects', JSON.stringify(projects))
+      this.setState({projects: projects})
+
+      target.reset()
+    }
+  }
+
   render() {
     return (
       <div>
@@ -398,13 +436,14 @@ class Todo extends React.Component{
           <div className="side-bar right-bar">
             <h6>Projects</h6>
             <hr/>
-            <CreateProjectForm onSubmit={this.createProject}/>
+            <CreateProjectForm edit={this.editProject} labels={this.state.labels} onSubmit={this.createProject}/>
             <div className="projects-list">
               {this.state.projects.map((project, index) => {
                 return (
                   <Project
                     project={project}
-                    key={index} 
+                    key={index}
+                    index={index}
                     tasks={this.state.tasks.filter(task => task.project === index.toString())}
                   />
                 )
