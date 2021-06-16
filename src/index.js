@@ -41,7 +41,7 @@ function Project(props){
             <div
               className="progress-bar"
               role="progressbar"
-              style={{width: props.tasks.filter(task => task.done).count / props.tasks.count + '%'}}
+              style={{width: ((props.tasks.filter(task => task.done).length * 100) / props.tasks.length) + '%'}}
               aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
         </div>
@@ -83,7 +83,7 @@ function CreateTaskForm(props){
               )
             })}
           </select>
-          <select className="move-to-project form-select form-select-sm" aria-label=".form-select-sm example">
+          <select onChange={props.moveToProject} className="move-to-project form-select form-select-sm" aria-label=".form-select-sm example">
             <option defaultValue disabled>Move to Project</option>
             {props.projects.map((project, index) => {
               return(
@@ -153,6 +153,7 @@ class Todo extends React.Component{
     this.deleteTask = this.deleteTask.bind(this);
     this.addTaskLabel = this.addTaskLabel.bind(this);
     this.removeTaskLabel = this.removeTaskLabel.bind(this);
+    this.moveTaskToProject = this.moveTaskToProject.bind(this)
     this.createProject = this.createProject.bind(this);
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
@@ -235,6 +236,17 @@ class Todo extends React.Component{
     }else{
       console.log('Could not remove label')
     }
+  }
+
+  moveTaskToProject(e){
+    e.preventDefault()
+    let project_id = e.target.value
+    let task_id = e.target.parentElement.parentElement.dataset.id
+    let tasks = JSON.parse(localStorage.getItem('tasks'))
+    tasks[task_id].project = project_id
+
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+    this.setState({tasks: tasks})
   }
 
   editTask(e){
@@ -364,7 +376,7 @@ class Todo extends React.Component{
             </div>
           </div>
           <div className="main-form">
-            <CreateTaskForm addLabel={this.addTaskLabel} labels={this.state.labels} projects={this.state.projects} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
+            <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={this.state.labels} projects={this.state.projects} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
               {this.state.tasks.map((task, index) => {
                 return(
@@ -393,7 +405,7 @@ class Todo extends React.Component{
                   <Project
                     project={project}
                     key={index} 
-                    tasks={this.state.tasks.filter(task => task.project === project.name)}
+                    tasks={this.state.tasks.filter(task => task.project === index.toString())}
                   />
                 )
               })}
