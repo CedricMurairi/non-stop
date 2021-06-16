@@ -126,7 +126,7 @@ input[type=number]:focus,
 }
 
 .progress{
-  height: 2px;
+  height: 4px;
   background-color: gainsboro;
 }
 
