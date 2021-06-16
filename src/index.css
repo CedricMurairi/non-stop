@@ -162,7 +162,7 @@ input[type=number]:focus,
   grid-gap: 2px;
 } */
 
-.task{
+.task, .project{
   position: relative;
 }
 
@@ -170,21 +170,21 @@ input[type=number]:focus,
   width: 70%;
 }
 
-.deleteTask{
+.deleteTask, .deleteProject{
   opacity: 0.6;
   position: absolute;
   right: 5px;
   top: 7px;
 }
 
-.editTask{
+.editTask, .editProject{
   opacity: 0.6;
   position: absolute;
   right: 30px;
   top: 7px;
 }
 
-.deleteTask:hover, .editTask:hover{
+.deleteTask:hover, .editTask:hover, .deleteProject:hover, .editProject:hover{
   opacity: 1;
 }
 
@@ -225,7 +225,7 @@ form{
   cursor: pointer;
 }
 
-.create-task button{
+.create-task button, .project-form button{
   margin-right: 10px;
 }
 
