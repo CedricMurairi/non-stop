@@ -194,25 +194,24 @@ class Todo extends React.Component{
     const data = new FormData(e.target);
     let tasks = JSON.parse(localStorage.getItem('tasks'))
     if (tasks){
-      tasks = [...tasks, {
+      tasks[tsk_id_count] = {
         id: tsk_id_count,
         title: data.get('title'),
         description: data.get('description'),
         labels: [],
         project: null,
         done: false
-      }]
+      }
     }else{
-      tasks = [
-        {
-          id: tsk_id_count,
-          title: data.get('title'),
-          description: data.get('description'),
-          labels: [],
-          project: null,
-          done: false
-        }
-      ]
+      tasks = {}
+      tasks[tsk_id_count] = {
+        id: tsk_id_count,
+        title: data.get('title'),
+        description: data.get('description'),
+        labels: [],
+        project: null,
+        done: false
+      }
     }
 
     localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -224,9 +223,13 @@ class Todo extends React.Component{
 
   completeTask(e){
     const taskIndex = e.target.dataset.key
+    console.log(taskIndex)
     let tasks = JSON.parse(localStorage.getItem('tasks'))
-    if (tasks[taskIndex].done){tasks[taskIndex].done = false}
-    else{tasks[taskIndex].done = true}
+    let task = tasks[taskIndex]
+    if (task.done){task.done = false;}
+    else {task.done = true;}
+
+    tasks[taskIndex] = task;
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
   }
@@ -442,7 +445,7 @@ class Todo extends React.Component{
         <div className="span-across">
           <div className="side-bar left-bar">
             <div className="menu text-muted">
-              <button className="btn btn-sm text-muted">General <span>{this.state.tasks.filter(task => !task.done).length}</span></button>
+              <button className="btn btn-sm text-muted">General <span>{Object.keys(this.state.tasks).filter(id => !this.state.tasks[id].done).length}</span></button>
               <button className="btn btn-sm text-muted">Today <span></span></button>
               <button className="btn btn-sm text-muted">Upcoming</button>
             </div>
@@ -466,9 +469,9 @@ class Todo extends React.Component{
           <div className="main-form">
             <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={this.state.labels} projects={this.state.projects} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
-              {this.state.tasks.map(task => {
+              {Object.keys(this.state.tasks).map(id => {
                 return(
-                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={task} key={task.id} index={task.id} onChange={this.completeTask}/>
+                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
               })}
             </div>
