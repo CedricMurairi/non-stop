@@ -11,7 +11,7 @@ window.onload = () => {
     }))
 
     let projects = document.querySelectorAll(".project")
-    projects.forEach(project => project.addEventListener('click', () => {
+    projects.forEach(project => project.childNodes[0].childNodes[0].addEventListener('click', () => {
         project.childNodes[3].classList.toggle('hidden');
         project.childNodes[2].classList.toggle('hidden');
         project.childNodes[1].classList.toggle('hidden');

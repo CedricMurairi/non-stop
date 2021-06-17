@@ -21,10 +21,7 @@ function Task(props){
           </div>
         </div>
         <img width="16px" data-id={props.index} className="options editTask hidden" src="https://img.icons8.com/material/24/000000/edit--v1.png" alt=""/>
-        <svg data-id={props.index} onClick={props.deleteTask} className="options deleteTask hidden" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-        width="15" height="15"
-        viewBox="0 0 172 172" 
-        style={{fill:"#000000"}}><g fill="none" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" strokeDasharray="" strokeDashoffset="0" fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none"><path d="M0,172v-172h172v172z" fill="none"></path><g fill="#000000"><path d="M71.66667,14.33333l-7.16667,7.16667h-35.83333v14.33333h21.5h71.66667h21.5v-14.33333h-35.83333l-7.16667,-7.16667zM35.83333,50.16667v93.16667c0,7.88333 6.45,14.33333 14.33333,14.33333h71.66667c7.88333,0 14.33333,-6.45 14.33333,-14.33333v-93.16667z"></path></g></g></svg>
+        <img width="16px" data-id={props.index} onClick={props.deleteTask} className="options deleteTask hidden" src="https://img.icons8.com/material/24/000000/delete--v1.png" alt=""/>
         <p className="description hidden">{props.task.description}</p>
     </div>
   )
@@ -44,7 +41,7 @@ function Project(props){
           </div>
         </div>
         <img width="16px" data-id={props.index} className="options editProject hidden" src="https://img.icons8.com/material/24/000000/edit--v1.png" alt=""/>
-        <img width="16px" data-id={props.index} className="options deleteProject hidden" src="https://img.icons8.com/material/24/000000/delete--v1.png" alt=""/>
+        <img width="16px" data-id={props.index} onClick={props.deleteProject} className="options deleteProject hidden" src="https://img.icons8.com/material/24/000000/delete--v1.png" alt=""/>
         <p className="description hidden">{props.project.description}</p>
     </div>
   )
@@ -170,6 +167,7 @@ class Todo extends React.Component{
     this.moveTaskToProject = this.moveTaskToProject.bind(this)
     this.createProject = this.createProject.bind(this);
     this.editProject = this.editProject.bind(this);
+    this.deleteProject = this.deleteProject.bind(this)
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
     this.state = {
@@ -182,10 +180,22 @@ class Todo extends React.Component{
 
   createTask(e){
     e.preventDefault();
+
+    let tsk_id_count = localStorage.getItem('tsk_id_count')
+    if (tsk_id_count === null){
+      localStorage.setItem('tsk_id_count', 0)
+      tsk_id_count = parseInt(localStorage.getItem('tsk_id_count'))
+    }else{
+      tsk_id_count = parseInt(tsk_id_count)
+      tsk_id_count += 1
+      localStorage.setItem('tsk_id_count', tsk_id_count)
+    }
+
     const data = new FormData(e.target);
     let tasks = JSON.parse(localStorage.getItem('tasks'))
     if (tasks){
       tasks = [...tasks, {
+        id: tsk_id_count,
         title: data.get('title'),
         description: data.get('description'),
         labels: [],
@@ -195,6 +205,7 @@ class Todo extends React.Component{
     }else{
       tasks = [
         {
+          id: tsk_id_count,
           title: data.get('title'),
           description: data.get('description'),
           labels: [],
@@ -301,14 +312,27 @@ class Todo extends React.Component{
 
   createLabel(e){
     e.preventDefault()
+
+    let lbl_id_count = localStorage.getItem('lbl_id_count')
+    if (lbl_id_count === null){
+      localStorage.setItem('lbl_id_count', 0)
+      lbl_id_count = parseInt(localStorage.getItem('lbl_id_count'))
+    }else{
+      lbl_id_count = parseInt(lbl_id_count)
+      lbl_id_count += 1
+      localStorage.setItem('lbl_id_count', lbl_id_count)
+    }
+
     let labels = JSON.parse(localStorage.getItem('labels'))
     if (labels){
       labels = [...labels, {
+        id: lbl_id_count,
         name: e.target.label_name.value,
         color: e.target.label_color.value
       }]
     }else{
       labels = [{
+        id: lbl_id_count,
         name: e.target.label_name.value,
         color: e.target.label_color.value
       }]
@@ -336,9 +360,21 @@ class Todo extends React.Component{
 
   createProject(e){
     e.preventDefault()
+
+    let pr_id_count = localStorage.getItem('pr_id_count')
+    if (pr_id_count === null){
+      localStorage.setItem('pr_id_count', 0)
+      pr_id_count = parseInt(localStorage.getItem('pr_id_count'))
+    }else{
+      pr_id_count = parseInt(pr_id_count)
+      pr_id_count += 1
+      localStorage.setItem('pr_id_count', pr_id_count)
+    }
+
     let projects = JSON.parse(localStorage.getItem('projects'))
     if (projects){
       projects = [...projects, {
+        id: pr_id_count,
         name: e.target.project_name.value,
         description: e.target.project_description.value,
         color: "black",
@@ -346,6 +382,7 @@ class Todo extends React.Component{
       }]
     }else{
       projects = [{
+        id: pr_id_count,
         name: e.target.project_name.value,
         description: e.target.project_description.value,
         color: "black",
@@ -382,6 +419,19 @@ class Todo extends React.Component{
     }
   }
 
+  deleteProject(e){
+    e.preventDefault();
+    const id = e.target.dataset.id
+    if (id){
+      let projects = JSON.parse(localStorage.getItem('projects'))
+      projects.splice(id, 1)
+      localStorage.setItem("projects", JSON.stringify(projects))
+      this.setState({projects: projects})
+    }else{
+      console.log("Could not delete task")
+    }
+  }
+
   render() {
     return (
       <div>
@@ -401,12 +451,12 @@ class Todo extends React.Component{
             <hr/>
             <CreateLabelForm onSubmit={this.createLabel} showTaskForm={this.state.showTaskForm}/>
             <div className="label-list">
-              {this.state.labels.map((label, index) => {
+              {this.state.labels.map(label => {
                 return (
                   <Label
                     label={label}
-                    key={index}
-                    id={index}
+                    key={label.id}
+                    id={label.id}
                     onClick={this.deleteLabel}
                   />
                 )
@@ -416,9 +466,9 @@ class Todo extends React.Component{
           <div className="main-form">
             <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={this.state.labels} projects={this.state.projects} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
-              {this.state.tasks.map((task, index) => {
+              {this.state.tasks.map(task => {
                 return(
-                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={task} key={index} index={index} onChange={this.completeTask}/>
+                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={task} key={task.id} index={task.id} onChange={this.completeTask}/>
                 )
               })}
             </div>
@@ -438,13 +488,14 @@ class Todo extends React.Component{
             <hr/>
             <CreateProjectForm edit={this.editProject} labels={this.state.labels} onSubmit={this.createProject}/>
             <div className="projects-list">
-              {this.state.projects.map((project, index) => {
+              {this.state.projects.map(project => {
                 return (
                   <Project
                     project={project}
-                    key={index}
-                    index={index}
-                    tasks={this.state.tasks.filter(task => task.project === index.toString())}
+                    key={project.id}
+                    index={project.id}
+                    deleteProject={this.deleteProject}
+                    tasks={this.state.tasks.filter(task => task.project === project.id.toString())}
                   />
                 )
               })}
