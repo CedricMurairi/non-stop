@@ -155,33 +155,30 @@ input[type=number]:focus,
   padding: 0;
 }
 
-/* .label-list{
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-template-rows: auto;
-  grid-gap: 2px;
-} */
-
 .task, .project{
   position: relative;
 }
 
-.task-tile{
+.task-tile, .project h6{
   width: 70%;
 }
 
 .deleteTask, .deleteProject{
-  opacity: 0.6;
-  position: absolute;
   right: 5px;
-  top: 7px;
 }
 
 .editTask, .editProject{
+  right: 30px;
+}
+
+.deleteTask, .deleteProject, .editProject, .editTask{
   opacity: 0.6;
   position: absolute;
-  right: 30px;
   top: 7px;
+}
+
+.deleteProject, .editProject{
+  top: 4px;
 }
 
 .deleteTask:hover, .editTask:hover, .deleteProject:hover, .editProject:hover{
