@@ -12,9 +12,9 @@ function Task(props){
           <div className="task-tile">
             <h5 className={props.task.done ? "line-through" : null}>{props.task.title}</h5>
             <div data-id={props.index} className="task-label">
-              {props.task.labels.map((label, index) => {
+              {props.task.labels.map((id) => {
                 return(
-                  <Label onClick={props.removeTaskLabel} key={index} id={index} label={props.labels[label]}/>
+                  <Label onClick={props.removeTaskLabel} key={id} id={id} label={props.labels[id]}/>
                 )
               })}
             </div>
@@ -32,6 +32,13 @@ function Project(props){
     <div className={props.project.done ? "done project" : "project"}>
         <div className="d-flex tag-script project-tag">
           <h6>{props.project.name}</h6>
+          <div data-id={props.index} className="project-label">
+            {props.project.labels.map((id) => {
+              return(
+                <Label onClick={props.removeProjectLabel} key={id} id={id} label={props.labels[id]}/>
+              )
+            })}
+          </div>
           <div className="progress mb-1">
             <div
               className="progress-bar"
@@ -73,18 +80,18 @@ function CreateTaskForm(props){
         <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
         <div className="label-project hidden input-group mb-2">
           <select onChange={props.addLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
-            <option defaultValue disabled>Add Label</option>
-            {props.labels.map((label, index) => {
+            <option defaultValue>Add Label</option>
+            {props.labels.map((label) => {
               return(
-                <option value={index} className="form-control form-control-sm" key={index}>{label.name}</option>
+                <option value={label.id} className="form-control form-control-sm" key={label.id}>{label.name}</option>
               )
             })}
           </select>
           <select onChange={props.moveToProject} className="move-to-project form-select form-select-sm" aria-label=".form-select-sm example">
-            <option defaultValue disabled>Move to Project</option>
-            {props.projects.map((project, index) => {
+            <option defaultValue>Move to Project</option>
+            {props.projects.map((project) => {
               return(
-                <option value={index} className="form-control form-control-sm" key={index}>{project.name}</option>
+                <option value={project.id} className="form-control form-control-sm" key={project.id}>{project.name}</option>
               )
             })}
           </select>
@@ -117,11 +124,11 @@ function CreateProjectForm(props){
         name="project_description">
       </textarea>
       <div className="label-project hidden input-group mb-2">
-        <select onChange={props.addLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
-          <option defaultValue disabled>Add Label</option>
-          {props.labels.map((label, index) => {
+        <select onChange={props.addProjectLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
+          <option defaultValue>Add Label</option>
+          {props.labels.map((label) => {
             return(
-              <option value={index} className="form-control form-control-sm" key={index}>{label.name}</option>
+              <option value={label.id} className="form-control form-control-sm" key={label.id}>{label.name}</option>
             )
           })}
         </select>
@@ -166,6 +173,8 @@ class Todo extends React.Component{
     this.removeTaskLabel = this.removeTaskLabel.bind(this);
     this.moveTaskToProject = this.moveTaskToProject.bind(this)
     this.createProject = this.createProject.bind(this);
+    this.addProjectLabel = this.addProjectLabel.bind(this);
+    this.removeProjectLabel = this.removeProjectLabel.bind(this);
     this.editProject = this.editProject.bind(this);
     this.deleteProject = this.deleteProject.bind(this)
     this.createLabel = this.createLabel.bind(this);
@@ -240,14 +249,16 @@ class Todo extends React.Component{
     let task_id = target.dataset.id
     let label_id = e.target.value
     let tasks = JSON.parse(localStorage.getItem('tasks'))
-    if (tasks[task_id].labels.indexOf(label_id) !== -1) return
+    let task = tasks[task_id]
 
+    if (label_id === "Add Label" || task.labels.indexOf(label_id) !== -1) return
     if (tasks[task_id].labels){
-      tasks[task_id].labels = [...tasks[task_id].labels, label_id]
+      task.labels = [...task.labels, label_id]
     }else{
-      tasks[task_id].labels = [label_id]
+      task.labels = [label_id]
     }
 
+    tasks[task_id] = task
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: tasks})
   }
@@ -257,9 +268,11 @@ class Todo extends React.Component{
     let label_id = e.target.parentElement.dataset.id
     let task_id = e.target.parentElement.parentElement.dataset.id
     let tasks = JSON.parse(localStorage.getItem('tasks'))
-    console.log(task_id, label_id)
+    let task = tasks[task_id]
     if (typeof label_id !== 'undefined' && typeof task_id !== 'undefined'){
-      tasks[task_id].labels.splice(label_id, 1)
+      let lbl_indx = task.labels.indexOf(label_id)
+      task.labels.splice(lbl_indx, 1)
+      tasks[task_id] = task 
       localStorage.setItem('tasks', JSON.stringify(tasks))
       this.setState({tasks: tasks})
     }else{
@@ -272,8 +285,10 @@ class Todo extends React.Component{
     let project_id = e.target.value
     let task_id = e.target.parentElement.parentElement.dataset.id
     let tasks = JSON.parse(localStorage.getItem('tasks'))
-    tasks[task_id].project = project_id
+    let task = tasks[task_id]
 
+    task.project = project_id
+    tasks[task_id] = task
     localStorage.setItem('tasks', JSON.stringify(tasks))
     this.setState({tasks: tasks})
   }
@@ -291,8 +306,11 @@ class Todo extends React.Component{
       const id = target.dataset.id
 
       let tasks = JSON.parse(localStorage.getItem("tasks"))
-      tasks[id]['title'] = title
-      tasks[id]['description'] = description
+      let task = tasks[id]
+      task['title'] = title
+      task['description'] = description
+
+      tasks[id] = task
       localStorage.setItem('tasks', JSON.stringify(tasks))
       this.setState({tasks: tasks})
 
@@ -305,7 +323,7 @@ class Todo extends React.Component{
     const id = e.target.dataset.id
     if (id){
       let tasks = JSON.parse(localStorage.getItem('tasks'))
-      tasks.splice(id, 1)
+      delete tasks[id]
       localStorage.setItem("tasks", JSON.stringify(tasks))
       this.setState({tasks: tasks})
     }else{
@@ -328,17 +346,18 @@ class Todo extends React.Component{
 
     let labels = JSON.parse(localStorage.getItem('labels'))
     if (labels){
-      labels = [...labels, {
+      labels[lbl_id_count] = {
         id: lbl_id_count,
         name: e.target.label_name.value,
         color: e.target.label_color.value
-      }]
+      }
     }else{
-      labels = [{
+      labels = {}
+      labels[lbl_id_count] = {
         id: lbl_id_count,
         name: e.target.label_name.value,
         color: e.target.label_color.value
-      }]
+      }
     }
 
     localStorage.setItem('labels', JSON.stringify(labels))
@@ -353,7 +372,7 @@ class Todo extends React.Component{
     const id = e.target.parentElement.dataset.id
     if (id){
       let labels = JSON.parse(localStorage.getItem('labels'))
-      labels.splice(id, 1)
+      delete labels[id]
       localStorage.setItem("labels", JSON.stringify(labels))
       this.setState({labels: labels})
     }else{
@@ -376,21 +395,24 @@ class Todo extends React.Component{
 
     let projects = JSON.parse(localStorage.getItem('projects'))
     if (projects){
-      projects = [...projects, {
+      projects[pr_id_count] = {
         id: pr_id_count,
         name: e.target.project_name.value,
         description: e.target.project_description.value,
         color: "black",
+        labels: [],
         done: false
-      }]
+      }
     }else{
-      projects = [{
+      projects = {}
+      projects[pr_id_count] = {
         id: pr_id_count,
         name: e.target.project_name.value,
         description: e.target.project_description.value,
         color: "black",
+        labels: [],
         done: false
-      }]
+      }
     }
 
     localStorage.setItem('projects', JSON.stringify(projects))
@@ -398,6 +420,43 @@ class Todo extends React.Component{
 
     e.target.project_name.value = "" 
     e.target.project_description.value = "" 
+  }
+
+  addProjectLabel(e){
+    e.preventDefault()
+    let target = e.target.parentElement.parentElement
+    let project_id = target.dataset.id
+    let label_id = e.target.value
+    let projects = JSON.parse(localStorage.getItem('projects'))
+    let project = projects[project_id]
+
+    if (label_id === "Add Label" || project.labels.indexOf(label_id) !== -1) return
+    if (projects[project_id].labels){
+      project.labels = [...project.labels, label_id]
+    }else{
+      project.labels = [label_id]
+    }
+
+    projects[project_id] = project
+    localStorage.setItem('projects', JSON.stringify(projects))
+    this.setState({projects: projects})
+  }
+
+  removeProjectLabel(e){
+    e.preventDefault()
+    let label_id = e.target.parentElement.dataset.id
+    let project_id = e.target.parentElement.parentElement.dataset.id
+    let projects = JSON.parse(localStorage.getItem('projects'))
+    let project = projects[project_id]
+    if (typeof label_id !== 'undefined' && typeof project_id !== 'undefined'){
+      let lbl_indx = project.labels.indexOf(label_id)
+      project.labels.splice(lbl_indx, 1)
+      projects[project_id] = project
+      localStorage.setItem('projects', JSON.stringify(projects))
+      this.setState({projects: projects})
+    }else{
+      console.log('Could not remove label')
+    }
   }
 
   editProject(e){
@@ -413,8 +472,11 @@ class Todo extends React.Component{
       const id = target.dataset.id
 
       let projects = JSON.parse(localStorage.getItem("projects"))
-      projects[id]['name'] = name
-      projects[id]['description'] = description
+      let project = projects[id]
+      project['name'] = name
+      project['description'] = description
+
+      projects[id] = project
       localStorage.setItem('projects', JSON.stringify(projects))
       this.setState({projects: projects})
 
@@ -427,7 +489,7 @@ class Todo extends React.Component{
     const id = e.target.dataset.id
     if (id){
       let projects = JSON.parse(localStorage.getItem('projects'))
-      projects.splice(id, 1)
+      delete projects[id]
       localStorage.setItem("projects", JSON.stringify(projects))
       this.setState({projects: projects})
     }else{
@@ -454,12 +516,12 @@ class Todo extends React.Component{
             <hr/>
             <CreateLabelForm onSubmit={this.createLabel} showTaskForm={this.state.showTaskForm}/>
             <div className="label-list">
-              {this.state.labels.map(label => {
+              {Object.keys(this.state.labels).map(id => {
                 return (
                   <Label
-                    label={label}
-                    key={label.id}
-                    id={label.id}
+                    label={this.state.labels[id]}
+                    key={id}
+                    id={id}
                     onClick={this.deleteLabel}
                   />
                 )
@@ -467,7 +529,7 @@ class Todo extends React.Component{
             </div>
           </div>
           <div className="main-form">
-            <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={this.state.labels} projects={this.state.projects} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
+            <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={Object.keys(this.state.labels).map(id => this.state.labels[id])} projects={Object.keys(this.state.projects).map(id => this.state.projects[id])} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
               {Object.keys(this.state.tasks).map(id => {
                 return(
@@ -489,16 +551,18 @@ class Todo extends React.Component{
           <div className="side-bar right-bar">
             <h6>Projects</h6>
             <hr/>
-            <CreateProjectForm edit={this.editProject} labels={this.state.labels} onSubmit={this.createProject}/>
+            <CreateProjectForm addProjectLabel={this.addProjectLabel} edit={this.editProject} labels={Object.keys(this.state.labels).map(id => this.state.labels[id])} onSubmit={this.createProject}/>
             <div className="projects-list">
-              {this.state.projects.map(project => {
+              {Object.keys(this.state.projects).map(id => {
                 return (
                   <Project
-                    project={project}
-                    key={project.id}
-                    index={project.id}
+                    project={this.state.projects[id]}
+                    key={id}
+                    index={id}
+                    removeProjectLabel={this.removeProjectLabel}
                     deleteProject={this.deleteProject}
-                    tasks={this.state.tasks.filter(task => task.project === project.id.toString())}
+                    labels={this.state.labels}
+                    tasks={Object.keys(this.state.tasks).map(id => this.state.tasks[id]).filter(task => task.project === id.toString())}
                   />
                 )
               })}
