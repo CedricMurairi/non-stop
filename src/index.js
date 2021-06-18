@@ -248,6 +248,7 @@ class Todo extends React.Component{
     let target = e.target.parentElement.parentElement
     let task_id = target.dataset.id
     let label_id = e.target.value
+    let labels = JSON.parse(localStorage.getItem('labels'))
     let tasks = JSON.parse(localStorage.getItem('tasks'))
     let task = tasks[task_id]
 
@@ -258,9 +259,11 @@ class Todo extends React.Component{
       task.labels = [label_id]
     }
 
+    labels[label_id].tasks.push(task_id)
     tasks[task_id] = task
     localStorage.setItem('tasks', JSON.stringify(tasks))
-    this.setState({tasks: tasks})
+    localStorage.setItem('labels', JSON.stringify(labels))
+    this.setState({tasks: tasks, labels: labels})
   }
 
   removeTaskLabel(e){
@@ -349,14 +352,18 @@ class Todo extends React.Component{
       labels[lbl_id_count] = {
         id: lbl_id_count,
         name: e.target.label_name.value,
-        color: e.target.label_color.value
+        color: e.target.label_color.value,
+        tasks: [],
+        projects: []
       }
     }else{
       labels = {}
       labels[lbl_id_count] = {
         id: lbl_id_count,
         name: e.target.label_name.value,
-        color: e.target.label_color.value
+        color: e.target.label_color.value,
+        tasks: [],
+        projects: []
       }
     }
 
@@ -372,9 +379,16 @@ class Todo extends React.Component{
     const id = e.target.parentElement.dataset.id
     if (id){
       let labels = JSON.parse(localStorage.getItem('labels'))
+      let projects = JSON.parse(localStorage.getItem('projects'))
+      let tasks = JSON.parse(localStorage.getItem('tasks'))
+
+      labels[id].projects.map(pr_id => projects[pr_id].labels.splice(projects[pr_id].labels.indexOf(id), 1))
+      labels[id].tasks.map(tsk_id => tasks[tsk_id].labels.splice(tasks[tsk_id].labels.indexOf(id), 1))
       delete labels[id]
       localStorage.setItem("labels", JSON.stringify(labels))
-      this.setState({labels: labels})
+      localStorage.setItem("projects", JSON.stringify(projects))
+      localStorage.setItem("tasks", JSON.stringify(tasks))
+      this.setState({labels: labels, tasks: tasks, projects: projects})
     }else{
       console.log("Could not delete label")
     }
@@ -428,6 +442,7 @@ class Todo extends React.Component{
     let project_id = target.dataset.id
     let label_id = e.target.value
     let projects = JSON.parse(localStorage.getItem('projects'))
+    let labels = JSON.parse(localStorage.getItem('labels'))
     let project = projects[project_id]
 
     if (label_id === "Add Label" || project.labels.indexOf(label_id) !== -1) return
@@ -437,9 +452,11 @@ class Todo extends React.Component{
       project.labels = [label_id]
     }
 
+    labels[label_id].projects.push(project_id)
     projects[project_id] = project
     localStorage.setItem('projects', JSON.stringify(projects))
-    this.setState({projects: projects})
+    localStorage.setItem('labels', JSON.stringify(labels))
+    this.setState({projects: projects, labels: labels})
   }
 
   removeProjectLabel(e){
