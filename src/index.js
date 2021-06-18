@@ -78,7 +78,7 @@ function CreateTaskForm(props){
           name="title"
         />
         <textarea required placeholder="Description here!" className="form-control form-control-sm mb-2" name="description"></textarea>
-        <div className="label-project hidden input-group mb-2">
+        <div className="more-task-edit-options hidden input-group mb-2">
           <select onChange={props.addLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
             <option defaultValue>Add Label</option>
             {props.labels.map((label) => {
@@ -123,7 +123,7 @@ function CreateProjectForm(props){
         className="form-control form-control-sm mb-2"
         name="project_description">
       </textarea>
-      <div className="label-project hidden input-group mb-2">
+      <div className="more-project-edit-options hidden input-group mb-2">
         <select onChange={props.addProjectLabel} className="add-label form-select form-select-sm" aria-label=".form-select-sm example">
           <option defaultValue>Add Label</option>
           {props.labels.map((label) => {
@@ -209,6 +209,7 @@ class Todo extends React.Component{
         description: data.get('description'),
         labels: [],
         project: null,
+        due: "",
         done: false
       }
     }else{
@@ -219,6 +220,7 @@ class Todo extends React.Component{
         description: data.get('description'),
         labels: [],
         project: null,
+        due: "",
         done: false
       }
     }
@@ -308,6 +310,7 @@ class Todo extends React.Component{
     let target = e.target.parentElement
     const title = target[0].value
     const description = target[1].value
+    const due_date = target[4].value
 
     if (title === "" || description === ""){
       target.reset()
@@ -320,6 +323,7 @@ class Todo extends React.Component{
       if (typeof task === 'undefined'){return}
       task['title'] = title
       task['description'] = description
+      task['due'] = due_date
 
       tasks[id] = task
       localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -441,6 +445,7 @@ class Todo extends React.Component{
         color: "black",
         labels: [],
         tasks: [],
+        due: "",
         done: false
       }
     }else{
@@ -452,6 +457,7 @@ class Todo extends React.Component{
         color: "black",
         labels: [],
         tasks: [],
+        due: "",
         done: false
       }
     }
@@ -508,6 +514,7 @@ class Todo extends React.Component{
     let target = e.target.parentElement
     let name = target[0].value
     let description = target[1].value
+    let due_date = target[3].value
     
     if (name === "" || description === ""){
       target.reset()
@@ -520,6 +527,7 @@ class Todo extends React.Component{
       if (typeof project === 'undefined'){return}
       project['name'] = name
       project['description'] = description
+      project['due'] = due_date
 
       projects[id] = project
       localStorage.setItem('projects', JSON.stringify(projects))
@@ -558,9 +566,9 @@ class Todo extends React.Component{
         <div className="span-across">
           <div className="side-bar left-bar">
             <div className="menu text-muted">
-              <button className="btn btn-sm text-muted">General <span>{Object.keys(this.state.tasks).filter(id => !this.state.tasks[id].done).length}</span></button>
-              <button className="btn btn-sm text-muted">Today <span></span></button>
-              <button className="btn btn-sm text-muted">Upcoming</button>
+              <button className="btn btn-sm text-muted">General <span className="general">{Object.keys(this.state.tasks).filter(id => this.state.tasks[id].project === null && !this.state.tasks[id].done).length}</span></button>
+              <button className="btn btn-sm text-muted">Today <span className="today">{Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
+              <button className="btn btn-sm text-muted">Upcoming <span className="upcoming">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
             </div>
             <hr/>
             <h6>Labels</h6>
