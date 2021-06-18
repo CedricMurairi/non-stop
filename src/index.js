@@ -288,12 +288,19 @@ class Todo extends React.Component{
     let project_id = e.target.value
     let task_id = e.target.parentElement.parentElement.dataset.id
     let tasks = JSON.parse(localStorage.getItem('tasks'))
+    let projects = JSON.parse(localStorage.getItem('projects'))
     let task = tasks[task_id]
+
+    if (task.project !== null){
+      projects[task.project].tasks.splice(projects[task.project].tasks.indexOf(task_id), 1)
+    }
 
     task.project = project_id
     tasks[task_id] = task
+    projects[project_id].tasks.push(task_id)
     localStorage.setItem('tasks', JSON.stringify(tasks))
-    this.setState({tasks: tasks})
+    localStorage.setItem('projects', JSON.stringify(projects))
+    this.setState({tasks: tasks, projects: projects})
   }
 
   editTask(e){
@@ -310,6 +317,7 @@ class Todo extends React.Component{
 
       let tasks = JSON.parse(localStorage.getItem("tasks"))
       let task = tasks[id]
+      if (typeof task === 'undefined'){return}
       task['title'] = title
       task['description'] = description
 
@@ -326,9 +334,17 @@ class Todo extends React.Component{
     const id = e.target.dataset.id
     if (id){
       let tasks = JSON.parse(localStorage.getItem('tasks'))
+      let labels = JSON.parse(localStorage.getItem('labels'))
+      let projects = JSON.parse(localStorage.getItem('projects'))
+      tasks[id].labels.map(lbl_id => labels[lbl_id].tasks.splice(labels[lbl_id].tasks.indexOf(id), 1))
+      if (tasks[id].project !== null){
+        projects[tasks[id].project].tasks.splice(projects[tasks[id].project].tasks.indexOf(id), 1)
+      }
       delete tasks[id]
       localStorage.setItem("tasks", JSON.stringify(tasks))
-      this.setState({tasks: tasks})
+      localStorage.setItem("labels", JSON.stringify(labels))
+      localStorage.setItem("projects", JSON.stringify(projects))
+      this.setState({tasks: tasks, labels: labels, projects: projects})
     }else{
       console.log("Could not delete task")
     }
@@ -382,8 +398,17 @@ class Todo extends React.Component{
       let projects = JSON.parse(localStorage.getItem('projects'))
       let tasks = JSON.parse(localStorage.getItem('tasks'))
 
-      labels[id].projects.map(pr_id => projects[pr_id].labels.splice(projects[pr_id].labels.indexOf(id), 1))
-      labels[id].tasks.map(tsk_id => tasks[tsk_id].labels.splice(tasks[tsk_id].labels.indexOf(id), 1))
+
+      labels[id].projects.map(pr_id => {
+        if (typeof projects[pr_id] !== 'undefined'){
+          projects[pr_id].labels.splice(projects[pr_id].labels.indexOf(id), 1)
+        }
+      })
+      labels[id].tasks.map(tsk_id => {
+        if (typeof tasks[tsk_id] !== 'undefined'){
+          tasks[tsk_id].labels.splice(tasks[tsk_id].labels.indexOf(id), 1)
+        }
+      })
       delete labels[id]
       localStorage.setItem("labels", JSON.stringify(labels))
       localStorage.setItem("projects", JSON.stringify(projects))
@@ -415,6 +440,7 @@ class Todo extends React.Component{
         description: e.target.project_description.value,
         color: "black",
         labels: [],
+        tasks: [],
         done: false
       }
     }else{
@@ -425,6 +451,7 @@ class Todo extends React.Component{
         description: e.target.project_description.value,
         color: "black",
         labels: [],
+        tasks: [],
         done: false
       }
     }
@@ -490,6 +517,7 @@ class Todo extends React.Component{
 
       let projects = JSON.parse(localStorage.getItem("projects"))
       let project = projects[id]
+      if (typeof project === 'undefined'){return}
       project['name'] = name
       project['description'] = description
 
@@ -506,9 +534,15 @@ class Todo extends React.Component{
     const id = e.target.dataset.id
     if (id){
       let projects = JSON.parse(localStorage.getItem('projects'))
+      let labels = JSON.parse(localStorage.getItem('labels'))
+      let tasks = JSON.parse(localStorage.getItem('tasks'))
+      projects[id].labels.map(lbl_id => labels[lbl_id].projects.splice(labels[lbl_id].projects.indexOf(id), 1))
+      projects[id].tasks.map(tsk_id => delete tasks[tsk_id])
       delete projects[id]
       localStorage.setItem("projects", JSON.stringify(projects))
-      this.setState({projects: projects})
+      localStorage.setItem("labels", JSON.stringify(labels))
+      localStorage.setItem("tasks", JSON.stringify(tasks))
+      this.setState({projects: projects, labels: labels, tasks: tasks})
     }else{
       console.log("Could not delete task")
     }
