@@ -70,12 +70,12 @@ code {
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-.main-form::-webkit-scrollbar, .tasks-list::-webkit-scrollbar, body::-webkit-scrollbar, .task-label::-webkit-scrollbar {
+.main-form::-webkit-scrollbar, .tasks-list::-webkit-scrollbar, body::-webkit-scrollbar, .task-label::-webkit-scrollbar, .project-label::-webkit-scrollbar {
   display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
-.main-form, .tasks-list, body, .task-label {
+.main-form, .tasks-list, body, .task-label, .project-label {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
@@ -226,7 +226,7 @@ form{
   margin-right: 10px;
 }
 
-.task-label{
+.task-label, .project-label{
   padding: 0;
   margin: 0;
   display: flex;
@@ -236,8 +236,16 @@ form{
   overflow: scroll;
 }
 
-.task-label .label{
+.task-label .label, .project-label .label{
   font-size: 6px;
   min-width: fit-content;
   margin-bottom: 5px;
+}
+
+.project-label{
+  margin-bottom: 0px;
+}
+
+.project h6{
+  margin-bottom: 2px;
 }
