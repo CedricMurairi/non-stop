@@ -89,6 +89,7 @@ function CreateTaskForm(props){
           </select>
           <select onChange={props.moveToProject} className="move-to-project form-select form-select-sm" aria-label=".form-select-sm example">
             <option defaultValue>Move to Project</option>
+            <option defaultValue>General</option>
             {props.projects.map((project) => {
               return(
                 <option value={project.id} className="form-control form-control-sm" key={project.id}>{project.name}</option>
@@ -299,13 +300,17 @@ class Todo extends React.Component{
     let projects = JSON.parse(localStorage.getItem('projects'))
     let task = tasks[task_id]
 
+    if (project_id === "Move to Project") return
     if (task.project !== null){
       projects[task.project].tasks.splice(projects[task.project].tasks.indexOf(task_id), 1)
     }
 
-    task.project = project_id
+    if (project_id === "General"){task.project = null}
+    else{
+      task.project = project_id
+      projects[project_id].tasks.push(task_id)
+    }
     tasks[task_id] = task
-    projects[project_id].tasks.push(task_id)
     localStorage.setItem('tasks', JSON.stringify(tasks))
     localStorage.setItem('projects', JSON.stringify(projects))
     this.setState({tasks: tasks, projects: projects})
