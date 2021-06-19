@@ -56,6 +56,10 @@ code {
   opacity: 0.6;
 }
 
+.done .editTask, .done .editProject{
+  display: none;
+}
+
 .span-across{
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
@@ -278,7 +282,7 @@ form{
   background-color: rgb(104, 0, 0);;
 }
 
-.task:hover{
+.task:hover, .project:hover{
   animation: shake 2s normal;
   animation-play-state: paused;
 }

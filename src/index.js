@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 
 function Task(props){
   return (
-    <div style={new Date(props.task.due).toLocaleDateString() < new Date().toLocaleDateString() && !props.task.done ? {animationPlayState: "running"} : {backgroundColor: "inherit"}} className={props.task.done ? "done task" : "task"} data-key={props.index}>
+    <div style={new Date(props.task.due).toLocaleDateString() < new Date().toLocaleDateString() && !props.task.done ? {animationPlayState: "running"} : {animationPlayState: "paused"}} className={props.task.done ? "done task" : "task"} data-key={props.index}>
         <div className="d-flex tag-script task-tag" data-key={props.index}>
           <input checked={props.task.done ? true : false} data-key={props.index} className="form-check-input" type="checkbox" onChange={props.onChange}></input>
           <div className="task-tile">
@@ -29,7 +29,7 @@ function Task(props){
 
 function Project(props){
   return (
-    <div className={props.project.done ? "done project" : "project"}>
+    <div style={new Date(props.project.due).toLocaleDateString() < new Date().toLocaleDateString() && !props.project.done ? {animationPlayState: "running"} : {animationPlayState: "paused"}} className={props.project.done ? "done project" : "project"}>
         <div className="d-flex tag-script project-tag">
           <h6>{props.project.name}</h6>
           <div data-id={props.index} className="project-label">
