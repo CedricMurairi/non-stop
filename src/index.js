@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 
 function Task(props){
   return (
-    <div className={props.task.done ? "done task" : "task"} data-key={props.index}>
+    <div style={new Date(props.task.due).toLocaleDateString() < new Date().toLocaleDateString() && !props.task.done ? {animationPlayState: "running"} : {backgroundColor: "inherit"}} className={props.task.done ? "done task" : "task"} data-key={props.index}>
         <div className="d-flex tag-script task-tag" data-key={props.index}>
           <input checked={props.task.done ? true : false} data-key={props.index} className="form-check-input" type="checkbox" onChange={props.onChange}></input>
           <div className="task-tile">
@@ -236,13 +236,19 @@ class Todo extends React.Component{
     const taskIndex = e.target.dataset.key
     console.log(taskIndex)
     let tasks = JSON.parse(localStorage.getItem('tasks'))
+    let projects = JSON.parse(localStorage.getItem('projects'))
     let task = tasks[taskIndex]
     if (task.done){task.done = false;}
     else {task.done = true;}
 
+    if (task.project !== null){
+      projects[task.project].tasks.filter(id => tasks[id].done).length === projects[task.project].tasks.length ? projects[task.project].done = true : projects[task.project].done = false
+    }
     tasks[taskIndex] = task;
     localStorage.setItem('tasks', JSON.stringify(tasks))
+    localStorage.setItem('projects', JSON.stringify(projects))
     this.setState({tasks: JSON.parse(localStorage.getItem('tasks'))})
+    this.setState({projects: JSON.parse(localStorage.getItem('projects'))})
   }
 
   addTaskLabel(e){

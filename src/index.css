@@ -45,6 +45,13 @@ code {
   100% {opacity: 1; transform: scale(1);}
 }
 
+@keyframes shake {
+  10%, 90% {transform: translate3d(-1px, 0, 0);}
+  20%, 80% {transform: translate3d(2px, 0, 0);}
+  30%, 50%, 70% {transform: translate3d(-4px, 0, 0);}
+  40%, 60% {transform: translate3d(4px, 0, 0);}
+}
+
 .done{
   opacity: 0.6;
 }
@@ -247,7 +254,7 @@ form{
 }
 
 .project h6{
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .upcoming, .today, .general{
@@ -265,4 +272,13 @@ form{
 
 .general{
   color: rgb(196, 127, 0);
+}
+
+.overdue{
+  background-color: rgb(104, 0, 0);;
+}
+
+.task:hover{
+  animation: shake 2s normal;
+  animation-play-state: paused;
 }
