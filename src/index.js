@@ -184,7 +184,11 @@ class Todo extends React.Component{
       tasks: JSON.parse(localStorage.getItem('tasks')) || [],
       labels: JSON.parse(localStorage.getItem('labels')) || [],
       projects: JSON.parse(localStorage.getItem('projects')) || [],
-      showTaskForm: true
+      showTaskForm: true,
+      today: true,
+      general: false,
+      upcoming: false,
+      overdue: false
     }
   }
 
@@ -577,9 +581,10 @@ class Todo extends React.Component{
         <div className="span-across">
           <div className="side-bar left-bar">
             <div className="menu text-muted">
-              <button className="btn btn-sm text-muted">General <span className="general">{Object.keys(this.state.tasks).filter(id => this.state.tasks[id].project === null && !this.state.tasks[id].done).length}</span></button>
-              <button className="btn btn-sm text-muted">Today <span className="today">{Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
-              <button className="btn btn-sm text-muted">Upcoming <span className="upcoming">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
+              <button onClick={() => this.setState({general: true, today: false, upcoming: false, overdue: false})} className="btn btn-sm text-muted">General <span className="general">{Object.keys(this.state.tasks).filter(id => this.state.tasks[id].project === null && !this.state.tasks[id].done).length}</span></button>
+              <button onClick={() => this.setState({today: true, general: false, upcoming: false, overdue: false})} className="btn btn-sm text-muted">Today <span className="today">{Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
+              <button onClick={() => this.setState({overdue: true, today: false, general: false, upcoming: false})} className="btn btn-sm text-muted">Overdue <span className="overdue">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() > new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
+              <button onClick={() => this.setState({upcoming: true, today: false, general: false, overdue: false})} className="btn btn-sm text-muted">Upcoming <span className="upcoming">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
             </div>
             <hr/>
             <h6>Labels</h6>
@@ -601,11 +606,31 @@ class Todo extends React.Component{
           <div className="main-form">
             <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={Object.keys(this.state.labels).map(id => this.state.labels[id])} projects={Object.keys(this.state.projects).map(id => this.state.projects[id])} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
-              {Object.keys(this.state.tasks).map(id => {
+              {this.state.today ? 
+              Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString()).map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
-              })}
+              })
+              : this.state.general ?
+              Object.keys(this.state.tasks).filter(id => this.state.tasks[id].project === null).map(id => {
+                return(
+                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
+                )
+              })
+              : this.state.upcoming ?
+              Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString()).map(id => {
+                return(
+                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
+                )
+              })
+              : this.state.overdue ?
+              Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() > new Date(this.state.tasks[id].due).toLocaleDateString()).map(id => {
+                return(
+                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
+                )
+              }) : <h4>Nothing to show for now</h4>
+              }
             </div>
             <button
               type="button"
