@@ -40,6 +40,7 @@ window.onload = () => {
         editForm.dataset.id = e.target.dataset.id
         editForm.childNodes[0].value = target.childNodes[0].childNodes[1].childNodes[0].innerText
         editForm.childNodes[1].value = target.childNodes[3].innerText
+
     }))
 
     // Task Edit -- Action
