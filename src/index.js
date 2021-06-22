@@ -432,11 +432,13 @@ class Todo extends React.Component{
       let tasks = JSON.parse(localStorage.getItem('tasks'))
 
 
+      // eslint-disable-next-line array-callback-return
       labels[id].projects.map(pr_id => {
         if (typeof projects[pr_id] !== 'undefined'){
           projects[pr_id].labels.splice(projects[pr_id].labels.indexOf(id), 1)
         }
       })
+      // eslint-disable-next-line array-callback-return
       labels[id].tasks.map(tsk_id => {
         if (typeof tasks[tsk_id] !== 'undefined'){
           tasks[tsk_id].labels.splice(tasks[tsk_id].labels.indexOf(id), 1)
