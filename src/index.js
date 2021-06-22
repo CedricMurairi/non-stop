@@ -17,6 +17,13 @@ function Task(props){
                   <Label onClick={props.removeTaskLabel} key={id} id={id} label={props.labels[id]}/>
                 )
               })}
+              <h6 className="due-date">
+                {new Date(props.task.due).toLocaleDateString() === new Date().toLocaleDateString() || props.task.due === "" ? "Due: Today":
+                new Date(props.task.due).toLocaleDateString() < new Date().toLocaleDateString() && !props.task.done ?
+                "Due: Overdue" :
+                "Due: " + new Date(props.task.due).toLocaleDateString()
+                }
+              </h6>
             </div>
           </div>
         </div>
@@ -38,6 +45,13 @@ function Project(props){
                 <Label onClick={props.removeProjectLabel} key={id} id={id} label={props.labels[id]}/>
               )
             })}
+            <h6 className="due-date">
+              {new Date(props.project.due).toLocaleDateString() === new Date().toLocaleDateString() || props.project.due === "" ? "Due: Today" :
+              new Date(props.project.due).toLocaleDateString() < new Date().toLocaleDateString() && !props.project.done ?
+              "Due: Overdue" :
+              "Due: " + new Date(props.project.due).toLocaleDateString()
+              }
+            </h6>
           </div>
           <div className="progress mb-1">
             <div
@@ -338,7 +352,7 @@ class Todo extends React.Component{
       if (typeof task === 'undefined'){return}
       task['title'] = title
       task['description'] = description
-      task['due'] = due_date
+      if (due_date !== ""){task['due'] = due_date}
 
       tasks[id] = task
       localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -542,7 +556,7 @@ class Todo extends React.Component{
       if (typeof project === 'undefined'){return}
       project['name'] = name
       project['description'] = description
-      project['due'] = due_date
+      if (due_date !== ""){project['due'] = due_date}
 
       projects[id] = project
       localStorage.setItem('projects', JSON.stringify(projects))
@@ -581,10 +595,10 @@ class Todo extends React.Component{
         <div className="span-across">
           <div className="side-bar left-bar">
             <div className="menu text-muted">
-              <button onClick={() => this.setState({general: true, today: false, upcoming: false, overdue: false})} className="btn btn-sm text-muted">General <span className="general">{Object.keys(this.state.tasks).filter(id => this.state.tasks[id].project === null && !this.state.tasks[id].done).length}</span></button>
-              <button onClick={() => this.setState({today: true, general: false, upcoming: false, overdue: false})} className="btn btn-sm text-muted">Today <span className="today">{Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
+              <button onClick={() => this.setState({today: true, general: false, upcoming: false, overdue: false})} className="btn btn-sm text-muted">Today <span className="today">{Object.keys(this.state.tasks).filter(id => (new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() && !this.state.tasks[id].done) || (this.state.tasks[id].due === 
+              "" &&!this.state.tasks[id].done)).length}</span></button>
               <button onClick={() => this.setState({overdue: true, today: false, general: false, upcoming: false})} className="btn btn-sm text-muted">Overdue <span className="overdue">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() > new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
-              <button onClick={() => this.setState({upcoming: true, today: false, general: false, overdue: false})} className="btn btn-sm text-muted">Upcoming <span className="upcoming">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done).length}</span></button>
+              <button onClick={() => this.setState({upcoming: true, today: false, general: false, overdue: false})} className="btn btn-sm text-muted">Upcoming <span className="upcoming">{Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && !this.state.tasks[id].done && this.state.tasks[id].due !== "").length}</span></button>
             </div>
             <hr/>
             <h6>Labels</h6>
@@ -606,31 +620,24 @@ class Todo extends React.Component{
           <div className="main-form">
             <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={Object.keys(this.state.labels).map(id => this.state.labels[id])} projects={Object.keys(this.state.projects).map(id => this.state.projects[id])} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
-              {this.state.today ? 
-              Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString()).map(id => {
+              {/* <p id="overdue" className="tag-tile overdue">Overdue</p> */}
+              {Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() > new Date(this.state.tasks[id].due).toLocaleDateString()).map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
-              })
-              : this.state.general ?
-              Object.keys(this.state.tasks).filter(id => this.state.tasks[id].project === null).map(id => {
+              })}
+              {/* <p id="today" className="tag-tile today">Today</p> */}
+              {Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() || this.state.tasks[id].due === "").map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
-              })
-              : this.state.upcoming ?
-              Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString()).map(id => {
+              })}
+              {/* <p id="upcoming" className="tag-tile upcoming">Upcoming</p> */}
+              {Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && this.state.tasks[id].due !== "").map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
-              })
-              : this.state.overdue ?
-              Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() > new Date(this.state.tasks[id].due).toLocaleDateString()).map(id => {
-                return(
-                  <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
-                )
-              }) : <h4>Nothing to show for now</h4>
-              }
+              })}
             </div>
             <button
               type="button"
