@@ -194,16 +194,33 @@ class Todo extends React.Component{
     this.deleteProject = this.deleteProject.bind(this)
     this.createLabel = this.createLabel.bind(this);
     this.deleteLabel = this.deleteLabel.bind(this);
+    this.initObjects = this.initObjects.bind(this)
     this.state = {
-      tasks: JSON.parse(localStorage.getItem('tasks')) || [],
-      labels: JSON.parse(localStorage.getItem('labels')) || [],
-      projects: JSON.parse(localStorage.getItem('projects')) || [],
+      tasks: JSON.parse(localStorage.getItem('tasks')) || {},
+      labels: JSON.parse(localStorage.getItem('labels')) || {},
+      projects: JSON.parse(localStorage.getItem('projects')) || {},
       showTaskForm: true,
       today: true,
       general: false,
       upcoming: false,
       overdue: false
     }
+  }
+
+  initObjects(){
+    let tasks = JSON.parse(localStorage.getItem('tasks'))
+    let labels = JSON.parse(localStorage.getItem('labels'))
+    let projects = JSON.parse(localStorage.getItem('projects'))
+
+    if(tasks === null){tasks = {}}
+    if(labels === null){labels = {}}
+    if(projects === null){projects = {}}
+
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+    localStorage.setItem('labels', JSON.stringify(labels))
+    localStorage.setItem('projects', JSON.stringify(projects))
+    this.setState({tasks: JSON.parse(localStorage.getItem('tasks')), labels: JSON.parse(localStorage.getItem('labels')), projects: JSON.parse(localStorage.getItem('projects'))
+  })
   }
 
   createTask(e){
@@ -219,9 +236,10 @@ class Todo extends React.Component{
       localStorage.setItem('tsk_id_count', tsk_id_count)
     }
 
+    this.initObjects()
     const data = new FormData(e.target);
     let tasks = JSON.parse(localStorage.getItem('tasks'))
-    if (tasks){
+    if (tasks !== null){
       tasks[tsk_id_count] = {
         id: tsk_id_count,
         title: data.get('title'),
@@ -396,8 +414,9 @@ class Todo extends React.Component{
       localStorage.setItem('lbl_id_count', lbl_id_count)
     }
 
+    this.initObjects()
     let labels = JSON.parse(localStorage.getItem('labels'))
-    if (labels){
+    if (labels !== null){
       labels[lbl_id_count] = {
         id: lbl_id_count,
         name: e.target.label_name.value,
@@ -467,8 +486,9 @@ class Todo extends React.Component{
       localStorage.setItem('pr_id_count', pr_id_count)
     }
 
+    this.initObjects()
     let projects = JSON.parse(localStorage.getItem('projects'))
-    if (projects){
+    if (projects !== null){
       projects[pr_id_count] = {
         id: pr_id_count,
         name: e.target.project_name.value,
@@ -622,35 +642,22 @@ class Todo extends React.Component{
           <div className="main-form">
             <CreateTaskForm moveToProject={this.moveTaskToProject} addLabel={this.addTaskLabel} labels={Object.keys(this.state.labels).map(id => this.state.labels[id])} projects={Object.keys(this.state.projects).map(id => this.state.projects[id])} edit={this.editTask} onSubmit={this.createTask} showTaskForm={this.state.showTaskForm}/>
             <div className="tasks-list">
-              {/* <p id="overdue" className="tag-tile overdue">Overdue</p> */}
               {Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() > new Date(this.state.tasks[id].due).toLocaleDateString()).map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
               })}
-              {/* <p id="today" className="tag-tile today">Today</p> */}
               {Object.keys(this.state.tasks).filter(id => new Date(this.state.tasks[id].due).toLocaleDateString() === new Date().toLocaleDateString() || this.state.tasks[id].due === "").map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
               })}
-              {/* <p id="upcoming" className="tag-tile upcoming">Upcoming</p> */}
               {Object.keys(this.state.tasks).filter(id => new Date().toLocaleDateString() < new Date(this.state.tasks[id].due).toLocaleDateString() && this.state.tasks[id].due !== "").map(id => {
                 return(
                   <Task removeTaskLabel={this.removeTaskLabel} labels={this.state.labels} deleteTask={this.deleteTask} task={this.state.tasks[id]} key={id} index={id} onChange={this.completeTask}/>
                 )
               })}
             </div>
-            <button
-              type="button"
-              className="add-task-btn btn btn-secondary"
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              title="Create Task"
-              // onClick={() => this.setState({showTaskForm: !this.state.showTaskForm})}
-            >
-              +
-            </button>
           </div>
           <div className="side-bar right-bar">
             <h6>Projects</h6>
